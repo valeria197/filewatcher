@@ -1,19 +1,26 @@
-#include <QCoreApplication>
-#include <QDebug>
+#define GUI_VERSION
 
-#include <memory>
+#ifdef GUI_VERSION
+    #include <QApplication>
+#else
+    #include <QCoreApplication>
+    #include <QDebug>
+#endif
+
+#include <QSharedPointer>
 #include <QFileInfo>
 #include <QDir>
 
 #include "listfilestrategy.h"
 #include "groupfilestrategy.h"
 
+#ifndef GUI_VERSION
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
 #if 0
-    std::shared_ptr<AbstractDirectoryStrategy> strategy = std::make_shared<ListFileStrategy>();
+    QSharedPointer<AbstractDirectoryStrategy> strategy = QSharedPointer<ListFileStrategy>::create();
 
     const QString currentDir = QDir::currentPath();
     for (auto& item : strategy->getDirectoryInfo(currentDir)) {
@@ -21,7 +28,7 @@ int main(int argc, char *argv[])
     }
     return a.exec();
 #else
-    std::shared_ptr<AbstractDirectoryStrategy> strategy = std::make_shared<GroupFileStrategy>();
+    QSharedPointer<AbstractDirectoryStrategy> strategy = QSharedPointer<GroupFileStrategy>::create();
 
     const QString currentDir = QDir::currentPath();
     for (auto& item : strategy->getDirectoryInfo(currentDir + "/..")) {
@@ -30,3 +37,17 @@ int main(int argc, char *argv[])
     return a.exec();
 #endif
 }
+#else // --------------------------------------------------------------
+
+#include "directorystatsmainwindow.h"
+
+//#include <QWidget>
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    DirectoryStatsMainWindow wnd;
+    wnd.show();
+    return app.exec();
+}
+#endif
