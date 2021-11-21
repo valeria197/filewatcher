@@ -6,7 +6,7 @@
 class ListFileStrategy : public AbstractDirectoryStrategy
 {
 public:
-    QList<AbstractDirectoryStrategy::FileInfo> getDirectoryInfo(const QString &path) override;
+    QHash<QString, QString> getDirectoryInfo(const QString &path) override;
 };
 
 #endif // LISTFILESTRATEGY_H

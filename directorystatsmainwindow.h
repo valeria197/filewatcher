@@ -7,8 +7,9 @@ namespace Ui {
 class DirectoryStatsMainWindow;
 }
 
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
+class AbstractDirectoryStrategy;
 class FileStatModel;
-class QModelIndex;
 
 class DirectoryStatsMainWindow : public QWidget
 {
@@ -26,6 +27,9 @@ private:
     const QSharedPointer<Ui::DirectoryStatsMainWindow> ui;
     FileStatModel *m_treeModel;
     FileStatModel *m_tableModel;
+
+    QSharedPointer<AbstractDirectoryStrategy> fileStatStrategy;
+    QSharedPointer<AbstractDirectoryStrategy> fileGroupStatStrategy;
 };
 
 #endif // DIRECTORYSTATSMAINWINDOW_H

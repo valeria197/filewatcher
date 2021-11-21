@@ -6,12 +6,18 @@
 #include <QFileInfo>
 
 #include "filestatmodel.h"
+#include "listfilestrategy.h"
+#include "groupfilestrategy.h"
 
 #include <QDebug>
 
 DirectoryStatsMainWindow::DirectoryStatsMainWindow(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::DirectoryStatsMainWindow)
+    , m_treeModel(new FileStatModel(this))
+    , m_tableModel(new FileStatModel(this))
+    , fileStatStrategy(QSharedPointer<ListFileStrategy>::create())
+    , fileGroupStatStrategy(QSharedPointer<GroupFileStrategy>::create())
 {
     ui->setupUi(this);
 
@@ -21,14 +27,12 @@ DirectoryStatsMainWindow::DirectoryStatsMainWindow(QWidget *parent)
         const QString path = QFileDialog::getExistingDirectory(this, "Выберите папку для статистики", QDir::currentPath());
         chooseTreeFolder(path);
     });
-    ui->listfilesRadioButton->setChecked(true);
+    ui->listFilesRadioButton->setChecked(true);
 
-    m_treeModel = new FileStatModel(this);
     m_treeModel->setFilter(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
     ui->filesTreeView->setModel(m_treeModel);
     ui->filesTreeView->header()->setSectionResizeMode(QHeaderView::Stretch);
 
-    m_tableModel = new FileStatModel(this);
     m_tableModel->setFilter(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
     ui->filesTableView->setModel(m_tableModel);
     ui->filesTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -38,6 +42,28 @@ DirectoryStatsMainWindow::DirectoryStatsMainWindow(QWidget *parent)
         handleTreeSelection(current);
     });
 
+    // -------------
+    auto strategyToggler =  [this]{
+        bool goodStats = ui->listFilesRadioButton->isChecked();
+        if (goodStats) {
+            m_treeModel->setStatisticsStrategy(fileStatStrategy);
+            m_tableModel->setStatisticsStrategy(fileStatStrategy);
+        } else {
+            m_treeModel->setStatisticsStrategy(fileGroupStatStrategy);
+            m_tableModel->setStatisticsStrategy(fileGroupStatStrategy);
+        }
+
+        m_treeModel->updateStatistics();
+        m_tableModel->updateStatistics();
+        m_treeModel->setStatsGrouped(!goodStats);
+        m_tableModel->setStatsGrouped(!goodStats);
+    };
+
+    connect(ui->listFilesRadioButton, &QRadioButton::toggled, this, strategyToggler);
+    connect(ui->groupFilesRadioButton, &QRadioButton::toggled, this, strategyToggler);
+    strategyToggler();
+
+    // -------------
     chooseTreeFolder(QDir::currentPath());
 }
 

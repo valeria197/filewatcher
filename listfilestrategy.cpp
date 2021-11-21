@@ -1,17 +1,17 @@
 #include "listfilestrategy.h"
 #include <QDir>
 
-QList<AbstractDirectoryStrategy::FileInfo> ListFileStrategy::getDirectoryInfo(const QString &path)
+QHash<QString, QString> ListFileStrategy::getDirectoryInfo(const QString &path)
 {
-    QList<AbstractDirectoryStrategy::FileInfo> result;
+    QHash<QString, QString> result;
 
     if (!QFile::exists(path)) {
-        return result;
+        return {};
     }
 
     const QFileInfo pathInfo(path);
     if (!pathInfo.isDir()) {
-        result.append(qMakePair(path, QStringLiteral("100%")));
+        result.insert(path, QStringLiteral("100%"));
     }
 
     qint64 total = getTotalSize(pathInfo.absoluteFilePath()); // hope, caching works
@@ -22,9 +22,9 @@ QList<AbstractDirectoryStrategy::FileInfo> ListFileStrategy::getDirectoryInfo(co
         qint64 current = getTotalSize(it.absoluteFilePath());
         double percent = 1. * current / total;
         if (percent > SIZE_PRESIZION) {
-            result.append(qMakePair(it.absoluteFilePath(), QString::number(percent * 100, 'f', 2) + "%"));
+            result.insert(it.absoluteFilePath(), QString::number(percent * 100, 'f', 2) + "%");
         } else {
-            result.append(qMakePair(it.absoluteFilePath(), QString("< 0.01%")));
+            result.insert(it.absoluteFilePath(), QString("< 0.01%"));
         }
     }
 

@@ -10,11 +10,9 @@
 class AbstractDirectoryStrategy
 {
 public:
-    using FileInfo = QPair<QString, QString>;
-
     virtual ~AbstractDirectoryStrategy() {}
 
-    virtual QList<FileInfo> getDirectoryInfo(const QString &path) = 0;
+    virtual QHash<QString, QString> getDirectoryInfo(const QString &path) = 0;
 
 protected:
     qint64 getTotalSize(const QString &path);
