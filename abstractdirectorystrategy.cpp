@@ -4,9 +4,6 @@
 
 qint64 AbstractDirectoryStrategy::getTotalSize(const QString &path)
 {
-    if (m_dirSizeCache.contains(path)) { // early return
-        return m_dirSizeCache[path];
-    }
     qint64 result = 0;
 
     if (QFileInfo(path).isDir()) {

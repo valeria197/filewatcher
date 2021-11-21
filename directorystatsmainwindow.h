@@ -1,5 +1,4 @@
-#ifndef DIRECTORYSTATSMAINWINDOW_H
-#define DIRECTORYSTATSMAINWINDOW_H
+#pragma once
 
 #include <QWidget>
 
@@ -7,9 +6,17 @@ namespace Ui {
 class DirectoryStatsMainWindow;
 }
 
-QT_FORWARD_DECLARE_CLASS(QModelIndex)
+namespace QtCharts {
+    class QChartView;
+    class QChart;
+}
+
+class QModelIndex;
+class QFileSystemModel;
 class AbstractDirectoryStrategy;
-class FileStatModel;
+class AbstractStatHolder;
+class CustomFileModel;
+class ChartUpdater;
 
 class DirectoryStatsMainWindow : public QWidget
 {
@@ -23,13 +30,24 @@ private:
     void chooseTreeFolder(const QString &path);
     void handleTreeSelection(const QModelIndex &index);
 
+private slots:
+    void updateStatsViews();
+    void onChooseButtonClicked();
+    void onFilesTreeSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
+    void onStatsComboBoxIndexChanged(int index);
+
 private:
     const QSharedPointer<Ui::DirectoryStatsMainWindow> ui;
-    FileStatModel *m_treeModel;
-    FileStatModel *m_tableModel;
+    QFileSystemModel *m_treeModel;
+    CustomFileModel *m_tableModel;
 
-    QSharedPointer<AbstractDirectoryStrategy> fileStatStrategy;
-    QSharedPointer<AbstractDirectoryStrategy> fileGroupStatStrategy;
+    QSharedPointer<AbstractDirectoryStrategy> m_fileStatStrategy;
+    QSharedPointer<AbstractDirectoryStrategy> m_fileGroupStatStrategy;
+
+    QSharedPointer<QtCharts::QChart> m_chart;
+    QtCharts::QChartView *m_chartView;
+    ChartUpdater    *m_chartUpdater;
+
+    AbstractStatHolder* m_chartStatHolder;
+    QList<AbstractStatHolder*> m_statHolders;
 };
-
-#endif // DIRECTORYSTATSMAINWINDOW_H

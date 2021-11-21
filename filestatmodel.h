@@ -1,38 +1,13 @@
-#ifndef FILESTATMODEL_H
-#define FILESTATMODEL_H
+#pragma once
 
+#include "abstractstatholder.h"
 #include <QFileSystemModel>
 
-class AbstractDirectoryStrategy;
-
-/*!
- * \brief The FileStatModel class это моделька, которая и
- * будет отображать статистику. Вывести для файлов колонку я могу, но
- * сгрупировать значения по типу -- это писать свою QAbstractProxyModel, у меня
- * уже нет времени и это не покажет использование стратегии правильное.
- * Потому для типа файла будет показано, сколько такие файлы занимают в % всего, вместе.
- *
- * Двигать секции тоже нельзя, харкдок, пардон.
- */
-class FileStatModel : public QFileSystemModel
+class CustomFileModel : public QFileSystemModel, public AbstractStatHolder
 {
     Q_OBJECT
 public:
-    explicit FileStatModel(QObject *parent = nullptr);
-
-    void setStatisticsStrategy(const QSharedPointer<AbstractDirectoryStrategy> &strategy);
-
-    void updateStatistics();
-
-    /*!
-     * \brief setStatsGrouped -- это костыль, потому что задумка со стратегиями
-     * совершенно загадочна. Мб это сраюотало бы для переписанной модели, которая
-     * отображает типы файлов сразу, но пока так пусть будет
-     * \param grouped         -- смотреть ли по расширениям
-     */
-    void setStatsGrouped(bool grouped);
-
-    // -----------
+    explicit CustomFileModel(QObject *parent = nullptr);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -40,10 +15,12 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-private:
-    bool m_statIsGrouped = false;
-    QSharedPointer<AbstractDirectoryStrategy> m_statStrategy = nullptr;
-    QHash<QString, QString> m_cachedStats;
-};
+protected:
+    void updateStatisticsImpl(const QString& path) override;
 
-#endif // FILESTATMODEL_H
+private slots:
+    void onRootPathChanged(const QString& newPath);
+
+private:
+    QHash<QString, double> m_cachedStats;
+};
