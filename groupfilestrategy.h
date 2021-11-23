@@ -4,6 +4,6 @@
 
 class GroupFileStrategy : public AbstractDirectoryStrategy
 {
-public:
-    QHash<QString, double> getDirectoryInfo(const QString &path) override;
+protected:
+    void traversePath(const QString &path, QHash<QString, qint64> &hash) const override;
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DirectoryStatsMainWindow</class>
- <widget class="QWidget" name="DirectoryStatsMainWindow">
+ <class>StatsMainWindow</class>
+ <widget class="QWidget" name="StatsMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>

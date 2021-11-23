@@ -3,7 +3,7 @@
 #include <QWidget>
 
 namespace Ui {
-class DirectoryStatsMainWindow;
+class StatsMainWindow;
 }
 
 namespace QtCharts {
@@ -18,13 +18,13 @@ class AbstractStatHolder;
 class CustomFileModel;
 class ChartUpdater;
 
-class DirectoryStatsMainWindow : public QWidget
+class StatsMainWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DirectoryStatsMainWindow(QWidget *parent = nullptr);
-    ~DirectoryStatsMainWindow();
+    explicit StatsMainWindow(QWidget *parent = nullptr);
+    ~StatsMainWindow();
 
 private:
     void chooseTreeFolder(const QString &path);
@@ -37,7 +37,7 @@ private slots:
     void onStatsComboBoxIndexChanged(int index);
 
 private:
-    const QSharedPointer<Ui::DirectoryStatsMainWindow> ui;
+    const QSharedPointer<Ui::StatsMainWindow> ui;
     QFileSystemModel *m_treeModel;
     CustomFileModel *m_tableModel;
 
@@ -50,4 +50,6 @@ private:
 
     AbstractStatHolder* m_chartStatHolder;
     QList<AbstractStatHolder*> m_statHolders;
+
+    QString m_currentStatRoot;
 };

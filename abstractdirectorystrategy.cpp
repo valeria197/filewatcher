@@ -1,25 +1,23 @@
 #include "abstractdirectorystrategy.h"
 
-#include <QDir>
-
-qint64 AbstractDirectoryStrategy::getTotalSize(const QString &path)
+QMap<QString, double> AbstractDirectoryStrategy::getDirectoryInfo(const QString &path) const
 {
-    qint64 result = 0;
+    QHash<QString, qint64> sizes;
+    traversePath(path, sizes);
+    return calculateStats(sizes);
+}
 
-    if (QFileInfo(path).isDir()) {
-        QDir directory(path);
-        for (const auto& it : directory.entryInfoList(QDir::Dirs | QDir::Files| QDir::NoDotAndDotDot
-                                                      | QDir::Hidden | QDir::NoSymLinks, QDir::Name | QDir::Type)) {
-            if (it.isDir()) {
-                result += getTotalSize(it.absoluteFilePath());
-            } else {
-                result += it.size();
-            }
-        }
-    }
-    else {
-        result += QFileInfo(path).size();
+QMap<QString, double> AbstractDirectoryStrategy::calculateStats(const QHash<QString, qint64> &sizes) const
+{
+    auto vals = sizes.values();
+    qint64 total = 0;
+    for(const auto &val : vals) {
+        total += val;
     }
 
+    QMap<QString, double> result;
+    for (const auto &name : sizes.keys()) {
+        result[name] = 1. * sizes[name] / total;
+    }
     return result;
 }
