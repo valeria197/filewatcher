@@ -1,29 +1,21 @@
-#ifndef ABSTRACTDIRECTORYSTRATEGY_H
-#define ABSTRACTDIRECTORYSTRATEGY_H
+#pragma once
 
 #include <QFileInfo>
+#include <QMap>
 
 /*!
- * \brief The AbstractDirectoryStrategy class -- пока не очень понятно задание, пусть будет stateless
- * Ничего не бросает, потому что будет использоваться в модельке, где папка существует.
+ * \brief The AbstractDirectoryStrategy будет использоваться в модельке, где папка существует.
  */
 class AbstractDirectoryStrategy
 {
 public:
-    using FileInfo = QPair<QString, QString>;
-
     virtual ~AbstractDirectoryStrategy() {}
 
-    virtual QList<FileInfo> getDirectoryInfo(const QString &path) = 0;
+    QMap<QString, double> getDirectoryInfo(const QString &path) const;
 
 protected:
-    qint64 getTotalSize(const QString &path);
+    virtual void traversePath(const QString &path, QHash<QString, qint64> &hash) const = 0;
 
-    static constexpr double SIZE_PRESIZION = 0.0001;
-
-protected:
-    QHash<QString, qint64> m_dirSizeCache; // optimization
+private:
+    QMap<QString, double> calculateStats(const QHash<QString, qint64> &sizes) const;
 };
-
-
-#endif // ABSTRACTDIRECTORYSTRATEGY_H

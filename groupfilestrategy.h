@@ -1,13 +1,9 @@
-#ifndef GROUPFILESTRATEGY_H
-#define GROUPFILESTRATEGY_H
+#pragma once
 
 #include "abstractdirectorystrategy.h"
 
 class GroupFileStrategy : public AbstractDirectoryStrategy
 {
-public:
-    static const QString DIR_MIME;
-    QList<AbstractDirectoryStrategy::FileInfo> getDirectoryInfo(const QString &path) override;
+protected:
+    void traversePath(const QString &path, QHash<QString, qint64> &hash) const override;
 };
-
-#endif // GROUPFILESTRATEGY_H

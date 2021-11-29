@@ -1,12 +1,9 @@
-#ifndef LISTFILESTRATEGY_H
-#define LISTFILESTRATEGY_H
+#pragma once
 
 #include "abstractdirectorystrategy.h"
 
 class ListFileStrategy : public AbstractDirectoryStrategy
 {
-public:
-    QList<AbstractDirectoryStrategy::FileInfo> getDirectoryInfo(const QString &path) override;
+protected:
+    void traversePath(const QString &path, QHash<QString, qint64> &hash) const override;
 };
-
-#endif // LISTFILESTRATEGY_H
