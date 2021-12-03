@@ -1,13 +1,16 @@
 #pragma once
 
-#include "abstractstatholder.h"
 #include <QAbstractTableModel>
+#include <QSharedPointer>
 
-class CustomFileModel : public QAbstractTableModel, public AbstractStatHolder
+class AbstractDirectoryStrategy;
+
+class CustomFileModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     explicit CustomFileModel(QObject *parent = nullptr);
+    ~CustomFileModel();
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -17,9 +20,13 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-protected:
-    void updateStatisticsImpl(const QString& path) override;
+    void setStatisticsStrategy(const QSharedPointer<AbstractDirectoryStrategy> &strategy);
+
+    void updateStatistics(const QString& path);
+
+    const QMap<QString, double>& getCachedStats() const;
 
 private:
     QMap<QString, double> m_cachedStats;
+    QSharedPointer<AbstractDirectoryStrategy> m_statStrategy = nullptr;
 };

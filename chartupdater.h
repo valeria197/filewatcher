@@ -1,31 +1,58 @@
 #pragma once
 
-#include "abstractstatholder.h"
 #include <QObject>
+#include <QSharedPointer>
 
 namespace QtCharts {
     class QChart;
     class QValueAxis;
+    class QAbstractSeries;
 }
 
-class ChartUpdater : public QObject, public AbstractStatHolder
+class AbstractDirectoryStrategy;
+class CustomFileModel;
+
+class ChartUpdater : public QObject
 {
     Q_OBJECT
 public:
-    enum DisplayMode {
-        PIE_MODE,
-        BAR_MODE
-    };
+    explicit ChartUpdater(const QSharedPointer<QtCharts::QChart> &chart,
+                          CustomFileModel* model,
+                          QObject *parent = nullptr);
 
-    explicit ChartUpdater(const QSharedPointer<QtCharts::QChart> &chart, QObject *parent = nullptr);
+    void setEnabled(bool enabled);
 
-    void setDisplayMode(DisplayMode mode);
+public slots:
+    void updateStatistics(const QMap<QString, double>&  cachedData);
 
 protected:
-    void updateStatisticsImpl(const QString& path) override;
+    virtual QtCharts::QAbstractSeries* createSeriesData(const QMap<QString, double>&  cachedData) = 0;
+    virtual void afterUpdate(QtCharts::QAbstractSeries *series) {}
 
-private:
-    DisplayMode m_mode;
+protected:
     QSharedPointer<QtCharts::QChart> m_chart;
     QSharedPointer<QtCharts::QValueAxis> m_axisY;
+    CustomFileModel *m_sourceModel = nullptr;
+
+    bool m_statIsGrouped = false;
+    bool m_enabled = false;
+};
+
+class PieChartUpdater: public ChartUpdater
+{
+public:
+    using ChartUpdater::ChartUpdater;
+
+protected:
+    QtCharts::QAbstractSeries*  createSeriesData(const QMap<QString, double>&  cachedData) override;
+};
+
+class BarChartUpdater: public ChartUpdater
+{
+public:
+    using ChartUpdater::ChartUpdater;
+
+protected:
+    QtCharts::QAbstractSeries*  createSeriesData(const QMap<QString, double>&  cachedData) override;
+    void afterUpdate(QtCharts::QAbstractSeries *series) override;
 };

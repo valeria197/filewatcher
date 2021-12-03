@@ -7,6 +7,9 @@ CustomFileModel::CustomFileModel(QObject *parent)
     : QAbstractTableModel(parent)
 { }
 
+CustomFileModel::~CustomFileModel()
+{ }
+
 int CustomFileModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
@@ -51,8 +54,20 @@ QVariant CustomFileModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void CustomFileModel::updateStatisticsImpl(const QString &path)
+void CustomFileModel::setStatisticsStrategy(const QSharedPointer<AbstractDirectoryStrategy> &strategy)
 {
-    m_cachedStats = m_statStrategy->getDirectoryInfo(path);
-    emit layoutChanged(); // force update view
+    m_statStrategy = strategy;
+}
+
+void CustomFileModel::updateStatistics(const QString &path)
+{
+    if (m_statStrategy != nullptr) {
+        m_cachedStats = m_statStrategy->getDirectoryInfo(path);
+        emit layoutChanged();
+    }
+}
+
+const QMap<QString, double> &CustomFileModel::getCachedStats() const
+{
+    return m_cachedStats;
 }

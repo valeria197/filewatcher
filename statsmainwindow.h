@@ -46,10 +46,9 @@ private:
 
     QSharedPointer<QtCharts::QChart> m_chart;
     QtCharts::QChartView *m_chartView;
-    ChartUpdater    *m_chartUpdater;
 
-    AbstractStatHolder* m_chartStatHolder;
-    QList<AbstractStatHolder*> m_statHolders;
+    ChartUpdater    *m_pieChartUpdater;
+    ChartUpdater    *m_barChartUpdater;
 
     QString m_currentStatRoot;
 };

@@ -13,7 +13,6 @@
 #include "listfilestrategy.h"
 #include "groupfilestrategy.h"
 #include "chartupdater.h"
-#include "abstractstatholder.h"
 
 StatsMainWindow::StatsMainWindow(QWidget *parent)
     : QWidget(parent)
@@ -24,8 +23,8 @@ StatsMainWindow::StatsMainWindow(QWidget *parent)
     , m_fileGroupStatStrategy(QSharedPointer<GroupFileStrategy>::create())
     , m_chart(new QtCharts::QChart)
     , m_chartView(new QtCharts::QChartView(m_chart.data(), this))
-    , m_chartUpdater(new ChartUpdater(m_chart, this))
-    , m_chartStatHolder(m_chartUpdater)
+    , m_pieChartUpdater(new PieChartUpdater(m_chart, m_tableModel, this))
+    , m_barChartUpdater(new BarChartUpdater(m_chart, m_tableModel, this))
 {
     ui->setupUi(this);
 
@@ -41,9 +40,6 @@ StatsMainWindow::StatsMainWindow(QWidget *parent)
     ui->filesTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     connect(ui->filesTreeView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &StatsMainWindow::onFilesTreeSelectionChanged);
-
-    m_statHolders.push_back(m_tableModel);
-    m_statHolders.push_back(m_chartStatHolder);
 
     connect(ui->listFilesRadioButton, &QRadioButton::toggled, this, &StatsMainWindow::updateStatsViews);
     connect(ui->groupFilesRadioButton, &QRadioButton::toggled, this, &StatsMainWindow::updateStatsViews);
@@ -88,12 +84,8 @@ void StatsMainWindow::handleTreeSelection(const QModelIndex &index)
 void StatsMainWindow::updateStatsViews()
 {
     bool goodStats = ui->listFilesRadioButton->isChecked();
-
-    for (AbstractStatHolder* statHolder : m_statHolders) {
-        statHolder->setStatisticsStrategy(goodStats ? m_fileStatStrategy : m_fileGroupStatStrategy);
-        statHolder->setStatsGrouped(!goodStats);
-        statHolder->updateStatistics(m_currentStatRoot);
-    }
+    m_tableModel->setStatisticsStrategy(goodStats ? m_fileStatStrategy : m_fileGroupStatStrategy);
+    m_tableModel->updateStatistics(m_currentStatRoot);
 }
 
 void StatsMainWindow::onChooseButtonClicked()
@@ -114,9 +106,12 @@ void StatsMainWindow::onStatsComboBoxIndexChanged(int index)
 {
     ui->statsViewStackedWidget->setCurrentIndex(index > 0 ? 1 : 0);
     if (index == 1) {
-        m_chartUpdater->setDisplayMode(ChartUpdater::PIE_MODE);
+        m_pieChartUpdater->setEnabled(true);
+        m_barChartUpdater->setEnabled(false);
     }
     if (index == 2) {
-        m_chartUpdater->setDisplayMode(ChartUpdater::BAR_MODE);
+        m_pieChartUpdater->setEnabled(false);
+        m_barChartUpdater->setEnabled(true);
     }
+    updateStatsViews();
 }
